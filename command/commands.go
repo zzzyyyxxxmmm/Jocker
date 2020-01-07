@@ -21,10 +21,12 @@ var RunCommand = cli.Command{
 		if len(context.Args()) < 1 {
 			return fmt.Errorf("Missing container command")
 		}
-		cmd := context.Args().Get(0)
+		var cmdArray []string
+		for _, arg:=range context.Args(){
+			cmdArray=append(cmdArray,arg)
+		}
 		tty := context.Bool("ti")
-		fmt.Println(cmd,tty)
-		Run(cmd,tty)
+		Run(tty, cmdArray)
 		return nil
 	},
 }
@@ -36,7 +38,7 @@ var InitCommand = cli.Command{
 		log.Infof("boot come on")
 		cmd := context.Args().Get(0)
 		log.Infof("command %s", cmd)
-		err := boot.RunContainerInitProcess(cmd, nil)
+		err := boot.RunContainerInitProcess()
 		return err
 	},
 }
