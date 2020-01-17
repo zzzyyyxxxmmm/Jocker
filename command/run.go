@@ -13,7 +13,9 @@ func Run( tty bool, comArray []string , volume string){
 		log.Error(err)
 	}
 	sendInitCommand(comArray, writePipe)
-	parent.Wait()
+	if tty {
+		parent.Wait()
+	}
 	mntURL:="/root/mnt/"
 	rootURL:="/root/"
 	boot.DeleteWorkSpace(rootURL,mntURL,volume)
