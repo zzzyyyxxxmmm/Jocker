@@ -100,7 +100,7 @@ var LogCommand = cli.Command{
 	},
 }
 
-var execCommand = cli.Command{
+var ExecCommand = cli.Command{
 	Name: "exec",
 	Usage: "exec a command into container",
 	Action: func(context *cli.Context) error {
@@ -119,6 +119,33 @@ var execCommand = cli.Command{
 			commandArray = append(commandArray, arg)
 		}
 		ExecContainer(containerName, commandArray)
+		return nil
+	},
+}
+
+var StopCommand = cli.Command{
+	Name: "stop",
+	Usage: "stop a container",
+	Action: func(context *cli.Context) error {
+		if len(context.Args()) < 1 {
+			return fmt.Errorf("Missing container name")
+		}
+		containerName := context.Args().Get(0)
+		stopContainer(containerName)
+		return nil
+	},
+}
+
+
+var RemoveCommand = cli.Command{
+	Name: "rm",
+	Usage: "remove unused containers",
+	Action: func(context *cli.Context) error {
+		if len(context.Args()) < 1 {
+			return fmt.Errorf("Missing container name")
+		}
+		containerName := context.Args().Get(0)
+		removeContainer(containerName)
 		return nil
 	},
 }

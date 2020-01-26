@@ -3,6 +3,7 @@ package command
 import (
 	"Jocker/boot"
 	log "github.com/sirupsen/logrus"
+	"os"
 	"syscall"
 	"strconv"
 	"fmt"
@@ -44,6 +45,24 @@ func stopContainer(containerName string) {
 	}
 }
 
+func removeContainer(containerName string) {
+	containerInfo, err := getContainerInfoByName(containerName)
+	if err != nil {
+		log.Errorf("Get container %s info error %v", containerName, err)
+		return
+	}
+	if containerInfo.Status != boot.STOP {
+		log.Errorf("Couldn't remove running container")
+		return
+	}
+	dirURL := fmt.Sprintf(boot.DefaultInfoLocation, containerName)
+	if err := os.RemoveAll(dirURL); err != nil {
+		log.Errorf("Remove file %s error %v", dirURL, err)
+		return
+	}
+}
+
+
 func getContainerInfoByName(containerName string) (*boot.ContainerInfo, error) {
 	dirURL := fmt.Sprintf(boot.DefaultInfoLocation, containerName)
 	configFilePath := dirURL +boot.ConfigName
@@ -59,3 +78,4 @@ func getContainerInfoByName(containerName string) (*boot.ContainerInfo, error) {
 	}
 	return &containerInfo, nil
 }
+
