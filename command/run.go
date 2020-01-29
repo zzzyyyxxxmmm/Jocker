@@ -13,7 +13,13 @@ import (
 )
 
 func Run( tty bool, comArray []string , volume string, containerName string){
-	parent, writePipe := boot.NewParentProcess(tty, volume)
+	parent, writePipe := boot.NewParentProcess(tty, containerName, volume)
+
+	log.Info(parent)
+	if parent==nil{
+		log.Errorf("new parent process error")
+		return
+	}
 	if err := parent.Start(); err != nil {
 		log.Error(err)
 	}
@@ -30,10 +36,10 @@ func Run( tty bool, comArray []string , volume string, containerName string){
 		parent.Wait()
 		deleteContainerInfo(containerName)
 	}
-	mntURL:="/root/mnt/"
-	rootURL:="/root/"
-	boot.DeleteWorkSpace(rootURL,mntURL,volume)
-	os.Exit(-1)
+	//mntURL:="/root/mnt/"
+	//rootURL:="/root/"
+	//boot.DeleteWorkSpace(rootURL,mntURL,volume)
+	log.Info("DeleteWorkSpace")
 }
 
 func sendInitCommand(comArray []string, writePipe *os.File) {

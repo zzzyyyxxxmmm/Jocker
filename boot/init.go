@@ -35,6 +35,7 @@ func RunContainerInitProcess() error {
 		return fmt.Errorf("Run container get user command error, cmdArray is nil")
 	}
 	setUpMount()
+	log.Info("start to lookpath", cmdArray[0])
 	path, err:=exec.LookPath(cmdArray[0])
 	if err!=nil{
 		log.Errorf("Exec loop path error %v", err)
@@ -76,18 +77,22 @@ func NewParentProcess(tty bool,containerName string, volume string) (*exec.Cmd, 
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 	} else {
-		dirURL := fmt.Sprintf(DefaultInfoLocation, containerName)
-		if err := os.MkdirAll(dirURL, 0622); err != nil {
-			log.Errorf("NewParentProcess mkdir %s error %v", dirURL, err)
-			return nil, nil
-		}
-		stdLogFilePath := dirURL + ContainerLogFile
-		stdLogFile, err := os.Create(stdLogFilePath)
-		if err != nil {
-			log.Errorf("NewParentProcess create file %s error %v", stdLogFilePath, err)
-			return nil, nil
-		}
-		cmd.Stdout = stdLogFile
+		//dirURL := fmt.Sprintf(DefaultInfoLocation, containerName)
+		//if err := os.MkdirAll(dirURL, 0622); err != nil {
+		//	log.Errorf("NewParentProcess mkdir %s error %v", dirURL, err)
+		//	return nil, nil
+		//}
+		//stdLogFilePath := dirURL + ContainerLogFile
+		//stdLogFile, err := os.Create(stdLogFilePath)
+		//if err != nil {
+		//	log.Errorf("NewParentProcess create file %s error %v", stdLogFilePath, err)
+		//	return nil, nil
+		//}
+		//log.Info("create file successfully")
+		//cmd.Stdout = stdLogFile
+		//cmd.Stdin = os.Stdin
+		//cmd.Stdout = os.Stdout
+		//cmd.Stderr = os.Stderr
 	}
 	cmd.ExtraFiles=[]*os.File{readPipe}
 	mntURL:="/root/mnt/"
@@ -273,7 +278,7 @@ func DeleteMountPointWithVolume(rootURL string, mntURL string, volumeURLs []stri
 }
 
 func DeleteMountPoint(rootURL string, mntURL string){
-	cmd := exec.Command("umount", mntURL)
+	cmd := exec.Command("umount", "-l", mntURL)
 	cmd.Stdout=os.Stdout
 	cmd.Stderr=os.Stderr
 	if err := cmd.Run(); err != nil {

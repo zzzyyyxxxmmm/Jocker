@@ -25,7 +25,7 @@ var RunCommand = cli.Command{
 			Name:  "d",
 			Usage: "detach container",
 		},
-		cli.BoolFlag{
+		cli.StringFlag{
 				Name:"name",
 				Usage: "container name",
 		},
