@@ -38,6 +38,10 @@ var RunCommand = cli.Command{
 		for _, arg:=range context.Args(){
 			cmdArray=append(cmdArray,arg)
 		}
+
+		imageName := cmdArray[0]
+		cmdArray = cmdArray[1:]
+
 		tty := context.Bool("ti")
 		volume := context.String("v")
 		detach:=context.Bool("d")
@@ -47,7 +51,7 @@ var RunCommand = cli.Command{
 		}
 		containerName:=context.String("name")
 
-		Run(tty, cmdArray, volume, containerName)
+		Run(tty, cmdArray, volume, containerName, imageName)
 		return nil
 	},
 }

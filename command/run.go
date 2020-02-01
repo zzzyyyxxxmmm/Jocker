@@ -12,10 +12,13 @@ import (
 	"time"
 )
 
-func Run( tty bool, comArray []string , volume string, containerName string){
-	parent, writePipe := boot.NewParentProcess(tty, containerName, volume)
+func Run( tty bool, comArray []string , volume string, containerName string, imageName string){
+	containerID:=randStringBytes(10)
 
-	log.Info(parent)
+	if containerName==""{
+		containerName=containerID
+	}
+	parent, writePipe := boot.NewParentProcess(tty, containerName, volume, imageName)
 	if parent==nil{
 		log.Errorf("new parent process error")
 		return
@@ -25,7 +28,7 @@ func Run( tty bool, comArray []string , volume string, containerName string){
 	}
 
 	//record container info
-	containerName, err := recordContainerInfo(parent.Process.Pid, comArray, containerName)
+	containerName, err := recordContainerInfo(parent.Process.Pid, comArray, containerName, containerID, volume)
 	if err != nil {
 		log.Errorf("Record container info error %v", err)
 		return
@@ -35,11 +38,8 @@ func Run( tty bool, comArray []string , volume string, containerName string){
 	if tty {
 		parent.Wait()
 		deleteContainerInfo(containerName)
+		boot.DeleteWorkSpace(volume, containerName)
 	}
-	//mntURL:="/root/mnt/"
-	//rootURL:="/root/"
-	//boot.DeleteWorkSpace(rootURL,mntURL,volume)
-	log.Info("DeleteWorkSpace")
 }
 
 func sendInitCommand(comArray []string, writePipe *os.File) {
@@ -49,13 +49,9 @@ func sendInitCommand(comArray []string, writePipe *os.File) {
 	writePipe.Close()
 }
 
-func recordContainerInfo(containerPID int, commandArray []string, containerName string) (string, error) {
-	id := randStringBytes(10)
+func recordContainerInfo(containerPID int, commandArray []string, containerName string, id, volume string) (string, error) {
 	createTime := time.Now().Format("2006-01-02 15:04:05")
 	command := strings.Join(commandArray, "")
-	if containerName == "" {
-		containerName = id
-	}
 	containerInfo := &boot.ContainerInfo{
 		Id:          id,
 		Pid:         strconv.Itoa(containerPID),
@@ -63,6 +59,7 @@ func recordContainerInfo(containerPID int, commandArray []string, containerName 
 		CreatedTime: createTime,
 		Status:      boot.RUNNING,
 		Name:        containerName,
+		Volume:volume,
 	}
 
 	jsonBytes, err := json.Marshal(containerInfo)

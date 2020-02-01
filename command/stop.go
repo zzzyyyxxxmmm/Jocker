@@ -60,6 +60,9 @@ func removeContainer(containerName string) {
 		log.Errorf("Remove file %s error %v", dirURL, err)
 		return
 	}
+
+
+	boot.DeleteWorkSpace(containerInfo.Volume,containerName)
 }
 
 
